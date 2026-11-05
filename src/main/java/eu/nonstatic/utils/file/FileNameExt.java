@@ -10,6 +10,7 @@
 package eu.nonstatic.utils.file;
 
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 public record FileNameExt(String name, String ext) {
@@ -50,6 +51,22 @@ public record FileNameExt(String name, String ext) {
   }
 
 
+  public FileNameExt withName(String name) {
+    return new FileNameExt(name, ext);
+  }
+
+  public FileNameExt withExt(String ext) {
+    return new FileNameExt(name, ext);
+  }
+
+  public FileNameExt withLowerExt() {
+    return new FileNameExt(name, ext != null ? ext.toLowerCase(Locale.ROOT) : null);
+  }
+
+  public FileNameExt withUpperExt() {
+    return new FileNameExt(name, ext != null ? ext.toUpperCase(Locale.ROOT) : null);
+  }
+
   public static String ext(String fileName) {
     return of(fileName).ext();
   }
@@ -62,8 +79,18 @@ public record FileNameExt(String name, String ext) {
     return result;
   }
 
+  public boolean isExtIgnoreCase(String ext) {
+    if(this.ext == null) {
+      return ext == null;
+    } else {
+      return this.ext.equalsIgnoreCase(ext);
+    }
+  }
 
-  public String toFileName() {
+  /**
+   * @return the unescaped name.ext concatenation as a CharSequence. Useful with URLs.
+   */
+  public CharSequence join() {
     if(name == null && ext == null) {
       return null;
     }
@@ -75,9 +102,13 @@ public record FileNameExt(String name, String ext) {
     if(ext != null) {
       sb.append(SEPARATOR).append(ext);
     }
-    return sanitizeFileNameGeneric(sb);
+    return sb.toString();
   }
 
+  public String toFileName() {
+    CharSequence cs = join();
+    return cs != null ? sanitizeFileNameGeneric(cs) : null;
+  }
 
   private static String sanitizeFileName(CharSequence cs, Pattern pattern) {
     return pattern.matcher(cs).replaceAll(REPLACEMENT).trim();

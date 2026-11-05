@@ -19,6 +19,8 @@ import java.security.SecureRandom;
 
 public final class FileUtils {
 
+  private static final SecureRandom RANDOM = new SecureRandom();
+
   private FileUtils() {}
 
   /**
@@ -37,10 +39,9 @@ public final class FileUtils {
 
 
   private static Path createSiblingVariant(Path path) {
-    var rnd = new SecureRandom();
     Path variant;
     do {
-      String prefix = Integer.toUnsignedString(rnd.nextInt());
+      String prefix = Integer.toUnsignedString(RANDOM.nextInt());
       variant = path.resolveSibling(prefix + '-' + path.getFileName());
     } while (Files.exists(variant));
 
@@ -63,9 +64,8 @@ public final class FileUtils {
   public static boolean isCaseInsensitiveFileSystem(FileSystem fs) {
     String suffix;
     Path lower;
-    var rnd = new SecureRandom();
     do {
-      suffix = Long.toUnsignedString(rnd.nextLong());
+      suffix = Long.toUnsignedString(RANDOM.nextLong());
       lower = fs.getPath("cics" + suffix);
     } while (Files.exists(lower));
 
